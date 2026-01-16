@@ -8,17 +8,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float movementSpeed = 5f;
     [SerializeField] private float turnSpeed = 10f;
     private Transform cameraTransform;
-    private Rigidbody rb;
+    private Rigidbody playerRigidBody;
     private Animator animator;
     private Vector3 inputVector;
     private bool hasInput;
+
     void Awake()
     {
         cameraTransform = Camera.main.transform;
-        rb = GetComponent<Rigidbody>();
+        playerRigidBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        rb.freezeRotation = true; //Guarantees that rb don't will fall when the postman moves
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        playerRigidBody.freezeRotation = true;
+        playerRigidBody.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     private void Update()
@@ -35,8 +36,10 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInput()
     {
-        float horizontalInput = Input.GetAxisRaw("Horizontal"), verticalInput = Input.GetAxisRaw("Vertical");
-        Vector3 camForward = cameraTransform.forward, camRight = cameraTransform.right;
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float verticalInput = Input.GetAxisRaw("Vertical");
+        Vector3 camForward = cameraTransform.forward;
+        Vector3 camRight = cameraTransform.right;
         camForward.y = 0; camRight.y = 0;
 
         camForward.Normalize();
@@ -51,12 +54,12 @@ public class PlayerController : MonoBehaviour
         if (hasInput)
         {
             Vector3 targetVelocity = inputVector * movementSpeed;
-            rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
+            playerRigidBody.linearVelocity = new Vector3(targetVelocity.x, playerRigidBody.linearVelocity.y, targetVelocity.z);
         }
         else
         {
             // Freio imediato (No slip)
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            playerRigidBody.linearVelocity = new Vector3(0f, playerRigidBody.linearVelocity.y, 0f);
         }
     }
 
@@ -68,7 +71,7 @@ public class PlayerController : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(inputVector);
             Quaternion nextRotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime);
 
-            rb.MoveRotation(nextRotation);
+            playerRigidBody.MoveRotation(nextRotation);
         }
     }
 
