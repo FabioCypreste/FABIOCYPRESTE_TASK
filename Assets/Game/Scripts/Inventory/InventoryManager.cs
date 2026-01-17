@@ -11,7 +11,7 @@ public class InventoryManager : MonoBehaviour
         instance = this;
     }
 
-    public void AddItem(Item itemToAdd)
+    public void AddItem(ItemData itemToAdd)
     {
         foreach (InventorySlot slot in slots)
         {
@@ -26,7 +26,6 @@ public class InventoryManager : MonoBehaviour
         InventorySlot newSlot = new InventorySlot(itemToAdd, 1);
         slots.Add(newSlot);
         Debug.Log($"New slot created for {itemToAdd.ItemName}");
-
     }
 
     public void RemoveItem(InventorySlot slot)

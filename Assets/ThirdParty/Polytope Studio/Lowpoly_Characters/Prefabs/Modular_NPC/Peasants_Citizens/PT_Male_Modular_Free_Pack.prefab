@@ -1038,6 +1038,7 @@ GameObject:
   - component: {fileID: 3309882858120561051}
   - component: {fileID: 8867372405804473313}
   - component: {fileID: 4741916978156158381}
+  - component: {fileID: 6350866968581264823}
   - component: {fileID: 7055805746118999260}
   - component: {fileID: 3005883783360643321}
   m_Layer: 0
@@ -1105,6 +1106,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   movementSpeed: 5
   turnSpeed: 10
+--- !u!114 &6350866968581264823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2784561854437792545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09f9adc8db893c04f907d6b0cfa05d17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  slots:
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
+  - item: {fileID: 0}
+    quantity: 0
 --- !u!54 &7055805746118999260
 Rigidbody:
   m_ObjectHideFlags: 0

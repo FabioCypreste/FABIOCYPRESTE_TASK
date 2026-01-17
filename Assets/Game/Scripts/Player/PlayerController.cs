@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private Vector3 inputVector;
     private bool hasInput;
-
+    private ItemPickup currentItemNearby;
     void Awake()
     {
         cameraTransform = Camera.main.transform;
@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     {
         HandleInput();
         HandleAnimations();
+        HandlerInteraction();
     }
 
     private void FixedUpdate()
@@ -31,22 +32,44 @@ public class PlayerController : MonoBehaviour
         ApplyRotation();
     }
 
+    private void HandlerInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && currentItemNearby != null)
+        {
+            Debug.Log($"Getting {currentItemNearby.itemData.ItemName}");
+            currentItemNearby.Interact();
+            currentItemNearby = null;
+        }
+    }
     private void OnTriggerEnter(Collider other)
     {
        ItemPickup item = other.GetComponent<ItemPickup>();
         if (item != null)
         {
-            Debug.Log($"Press F to pickup {item.itemPickup.ItemName}");
+            currentItemNearby = item;
+            Debug.Log($"Press F to pickup {item.itemData.ItemName}");
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        ItemPickup item = other.GetComponent<ItemPickup>();
+        if (item != null)
+        {
+            currentItemNearby = null;
+            Debug.Log("Exited from item area");
+        }
+
+    }
     private void HandleInput()
     {
+        float flatCamera = 0;
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
-        camForward.y = 0; camRight.y = 0;
+        camForward.y = flatCamera;
+        camRight.y = flatCamera;
 
         camForward.Normalize();
         camRight.Normalize();
