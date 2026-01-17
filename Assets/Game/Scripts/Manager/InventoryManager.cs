@@ -68,12 +68,20 @@ public class InventoryManager : MonoBehaviour
         PlayerPrefs.Save();
         OnInventoryChanged?.Invoke();
     }
-    public void RemoveItem(int index)
+    public void RemoveItem(ItemData itemToRemove, int amount)
     {
-        if (index >= 0 && index < slotsList.Count)
+        for (int i = slotsList.Count - 1; i >= 0; i--)
         {
-            slotsList.RemoveAt(index);
-            OnInventoryChanged?.Invoke();
+            if (slotsList[i].Data == itemToRemove)
+            {
+                slotsList[i].Quantity -= amount;
+                if (slotsList[i].Quantity <= 0)
+                {
+                    slotsList.RemoveAt(i);
+                }
+                OnInventoryChanged?.Invoke();
+                return;
+            }
         }
     }
 
