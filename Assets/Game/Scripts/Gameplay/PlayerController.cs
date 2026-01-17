@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 inputVector;
     private bool hasInput;
     private ItemPickup currentItemNearby;
+    private QuestGiver currentNPCNearby;
     void Awake()
     {
         cameraTransform = Camera.main.transform;
@@ -34,20 +35,33 @@ public class PlayerController : MonoBehaviour
 
     private void HandlerInteraction()
     {
-        if (Input.GetKeyDown(KeyCode.F) && currentItemNearby != null)
-        {
-            Debug.Log($"Getting {currentItemNearby.itemData.ItemName}");
-            currentItemNearby.Interact();
-            currentItemNearby = null;
+        if (Input.GetKeyDown(KeyCode.F)) {
+            if (currentItemNearby != null)
+            {
+                Debug.Log($"Getting {currentItemNearby.itemData.ItemName}");
+                currentItemNearby.Interact();
+                currentItemNearby = null;
+                return;
+            }
+            if (currentNPCNearby != null)
+            {
+                currentNPCNearby.Interact();
+            }
+
         }
     }
     private void OnTriggerEnter(Collider other)
     {
-       ItemPickup item = other.GetComponent<ItemPickup>();
-        if (item != null)
+        if (other.TryGetComponent(out ItemPickup item))
         {
             currentItemNearby = item;
-            Debug.Log($"Press F to pickup {item.itemData.ItemName}");
+            Debug.Log("Press F to Pickup Item");
+        }
+
+        else if (other.TryGetComponent(out QuestGiver npc))
+        {
+            currentNPCNearby = npc;
+            Debug.Log("Press F to Talk to NPC");
         }
     }
 
