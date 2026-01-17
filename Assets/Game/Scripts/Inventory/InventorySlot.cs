@@ -5,7 +5,7 @@ using UnityEngine;
 public class InventorySlot
 {
     [SerializeField] private ItemData item;
-    [SerializeField] private int quantity;
+    [SerializeField] public int quantity;
 
     public InventorySlot(ItemData item, int quantity)
     {
@@ -19,5 +19,9 @@ public class InventorySlot
     public void AddQuantity(int amount)
     {
         quantity += amount;
+    }
+    public void RemoveQuantity(int amount)
+    {
+        quantity -= amount;
     }
 }

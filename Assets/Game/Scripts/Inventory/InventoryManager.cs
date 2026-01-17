@@ -34,9 +34,10 @@ public class InventoryManager : MonoBehaviour
         Debug.Log($"New slot created for {itemToAdd.ItemName}");
     }
 
-    public void RemoveItem(InventorySlot slot)
+    public void RemoveItem(int index)
     {
-        slots.Remove(slot);
+        if (slots[index].Quantity <= 0) slots.RemoveAt(index);
+        if (slots[index].Quantity > 0) slots[index].RemoveQuantity(1);
         if (OnInventoryChanged != null) OnInventoryChanged.Invoke();
     }
 }
