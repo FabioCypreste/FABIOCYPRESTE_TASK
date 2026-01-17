@@ -7,7 +7,7 @@ public class FollowPlayer : MonoBehaviour
 
     private void Start()
     {
-        if (player == null)
+        if (player != null)
         {
             offset = transform.position - player.transform.position;
         }

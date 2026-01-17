@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
-using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using UnityEngine;
 
 [Serializable]
 public class InventorySlot
 {
-    private readonly Item item;
-    private int quantity = 0;
+    [SerializeField] private Item item;
+    [SerializeField] private int quantity;
 
     public InventorySlot(Item item, int quantity)
     {
@@ -15,16 +14,11 @@ public class InventorySlot
         this.quantity = quantity;
     }
 
-    public Item GetItem()
+    public Item Data => item;
+    public int Quantity => quantity;
+
+    public void AddQuantity(int amount)
     {
-        return this.item;
-    }
-    public void SetQuantity(int quantityValue)
-    {
-        this.quantity += quantityValue;
-    }
-    public int GetQuantity()
-    {
-        return this.quantity;
+        quantity += amount;
     }
 }

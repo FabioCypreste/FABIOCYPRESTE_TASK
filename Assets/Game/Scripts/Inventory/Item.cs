@@ -1,15 +1,11 @@
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using NUnit.Framework;
-using Unity.VisualScripting;
 using UnityEngine;
-
+[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class Item : ScriptableObject
 {
-    private readonly string itemName;
-    private readonly string itemDescription;
-    private readonly int maxStackSize = 99;
-    private Sprite icon;
+    [SerializeField] private string itemName;
+    [SerializeField] private string itemDescription;
+    [SerializeField] private int maxStackSize = 99;
+    [SerializeField] private Sprite icon;
 
     public string ItemName => itemName;
     public string ItemDescription => itemDescription;
