@@ -7,7 +7,7 @@ public class ItemData : ScriptableObject
     [SerializeField] private string itemName;
     [SerializeField] private string itemDescription;
     [SerializeField] private int maxStackSize = 99;
-    [SerializeField] private Sprite icon;
+    [SerializeField] public Sprite icon;
     [SerializeField] private bool isStackable;
 
     public string ID => id;
