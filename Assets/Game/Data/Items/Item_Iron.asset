@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d38dfab18e9cf70419bb5e545186c561, type: 3}
   m_Name: Item_Iron
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  id: 
-  itemName: 
-  itemDescription: 
-  maxStackSize: 99
-  icon: {fileID: 0}
-  isStackable: 0
+  id: iron
+  itemName: Iron
+  itemDescription: It's an iron.
+  maxStackSize: 2
+  icon: {fileID: 21300000, guid: 684cfbb9b6718aa4498587bcc48e01ab, type: 3}
+  isStackable: 1

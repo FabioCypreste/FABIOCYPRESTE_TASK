@@ -1,300 +1,141 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using static UnityEditor.Progress;
 
-public class InventoryManager : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class InventoryManager : MonoBehaviour
 {
-    public static InventoryManager Instance { get; private set; }
+    public static InventoryManager InventoryManagerInstance { get; private set; }
 
-    [Header("Configurações")]
     public int maxSlots = 3;
-    private const string SaveKey = "InventorySaveData";
-
-    [Header("Dados")]
-    public List<InventorySlot> slotsData = new List<InventorySlot>();
-    public List<ItemData> allItemsDatabase;
-
-    [Header("Referências Visuais (UI)")]
-    public GameObject[] uiSlots;
-    public Image dragIconImage;
-    public Camera mainCamera;
-
-    private InventorySlot draggedSlotData;
-    private int draggedSlotIndex = -1;
+    public List<ItemData> allItemsList;
+    public List<InventorySlot> slotsList = new List<InventorySlot>();
 
     public event Action OnInventoryChanged;
+    private const string SaveKey = "InventorySaveData";
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (InventoryManagerInstance != null && InventoryManagerInstance != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
 
-        if (dragIconImage != null) dragIconImage.gameObject.SetActive(false);
+        InventoryManagerInstance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
-        // Garante que a lista tem o tamanho certo
-        while (slotsData.Count < maxSlots)
-        {
-            slotsData.Add(new InventorySlot());
-        }
-
         LoadInventory();
-        UpdateUI();
     }
 
-    void Update()
+    void OnApplicationQuit()
     {
-        if (draggedSlotData != null && dragIconImage != null)
-        {
-            dragIconImage.transform.position = Input.mousePosition;
-        }
-    }
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (eventData.button != PointerEventData.InputButton.Left) return;
-
-        GameObject clickedObj = eventData.pointerCurrentRaycast.gameObject;
-        int index = GetSlotIndex(clickedObj);
-
-        if (index != -1 && slotsData[index].itemData != null)
-        {
-            draggedSlotIndex = index;
-            draggedSlotData = slotsData[index];
-
-            dragIconImage.sprite = draggedSlotData.itemData.Icon;
-            dragIconImage.gameObject.SetActive(true);
-
-            SetSlotVisualAlpha(index, 0.5f);
-        }
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (draggedSlotData == null) return;
-
-        GameObject targetObj = eventData.pointerCurrentRaycast.gameObject;
-        int targetIndex = GetSlotIndex(targetObj);
-
-        if (targetIndex != -1)
-        {
-            SwapOrStackItems(draggedSlotIndex, targetIndex);
-        }
-        else if (!IsPointerOverUI(eventData))
-        {
-            DropItemToWorld(draggedSlotIndex);
-        }
-
-        draggedSlotData = null;
-        draggedSlotIndex = -1;
-        dragIconImage.gameObject.SetActive(false);
-
-        UpdateUI();
         SaveInventory();
     }
 
-    private void SwapOrStackItems(int indexA, int indexB)
+    public void AddItem(ItemData itemToAdd, int amount = 1)
     {
-        if (indexA == indexB) return;
-
-        InventorySlot slotA = slotsData[indexA];
-        InventorySlot slotB = slotsData[indexB];
-
-        // Move para slot vazio
-        if (slotB.itemData == null)
-        {
-            slotB.itemData = slotA.itemData;
-            slotB.stackSize = slotA.stackSize;
-            slotA.Clear();
-        }
-        // Empilha se for igual
-        else if (slotA.itemData == slotB.itemData && slotB.itemData.IsStackable)
-        {
-            int spaceLeft = slotB.itemData.MaxStackSize - slotB.stackSize;
-
-            if (spaceLeft >= slotA.stackSize)
-            {
-                slotB.stackSize += slotA.stackSize;
-                slotA.Clear();
-            }
-            else
-            {
-                slotB.stackSize = slotB.itemData.MaxStackSize;
-                slotA.stackSize -= spaceLeft;
-            }
-        }
-        // Troca (Swap)
-        else
-        {
-            ItemData tempItem = slotB.itemData;
-            int tempStack = slotB.stackSize;
-
-            slotB.itemData = slotA.itemData;
-            slotB.stackSize = slotA.stackSize;
-
-            slotA.itemData = tempItem;
-            slotA.stackSize = tempStack;
-        }
-    }
-
-    private void DropItemToWorld(int slotIndex)
-    {
-        InventorySlot slot = slotsData[slotIndex];
-        if (slot.itemData != null && slot.itemData.prefab != null)
-        {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 10f))
-            {
-                Instantiate(slot.itemData.prefab, hit.point + Vector3.up * 0.5f, Quaternion.identity);
-                slot.Clear();
-            }
-            else
-            {
-                Instantiate(slot.itemData.prefab, mainCamera.transform.position + mainCamera.transform.forward * 2f, Quaternion.identity);
-                slot.Clear();
-            }
-        }
-    }
-
-    public bool AddItem(ItemData itemToAdd, int amount = 1)
-    {
-        // Tenta empilhar
         if (itemToAdd.IsStackable)
         {
-            foreach (InventorySlot slot in slotsData)
+            foreach (InventorySlot slot in slotsList)
             {
-                if (slot.itemData == itemToAdd && slot.stackSize < itemToAdd.MaxStackSize)
+                if (slot.Data == itemToAdd && slot.Quantity < itemToAdd.MaxStackSize)
                 {
-                    slot.stackSize += amount;
-                    UpdateUI();
-                    SaveInventory();
-                    return true;
+                    slot.AddQuantity(amount);
+                    OnInventoryChanged?.Invoke();
+                    return;
                 }
             }
         }
 
-        // Tenta slot vazio
-        foreach (InventorySlot slot in slotsData)
+        if (slotsList.Count < maxSlots)
         {
-            if (slot.itemData == null)
+            slotsList.Add(new InventorySlot(itemToAdd, amount));
+            OnInventoryChanged?.Invoke();
+        }
+    }
+
+    public void RemoveItem(int index, int amount)
+    {
+        for (int i = slotsList.Count - 1; i >= 0; i--)
+        {
+            if (slotsList[i].Data == item)
             {
-                slot.itemData = itemToAdd;
-                slot.stackSize = amount;
-                UpdateUI();
-                SaveInventory();
+                slotsList[i].AddQuantity(-amount);
+                if (slotsList[i].Quantity <= 0) slotsList.RemoveAt(i);
+                break;
+            }
+        }
+        OnInventoryChanged?.Invoke();
+    }
+
+    public void SwapSlots(int indexA, int indexB)
+    {
+        if (indexA < 0 || indexA >= slotsList.Count || indexB < 0 || indexB >= slotsList.Count) return;
+        InventorySlot temp = slotsList[indexA];
+        slotsList[indexA] = slotsList[indexB];
+        slotsList[indexB] = temp;
+        OnInventoryChanged?.Invoke();
+    }
+
+    public bool HasItem(ItemData item, int requiredAmount = 1)
+    {
+        foreach (var slot in slotsList)
+        {
+            if (slot.Data == item && slot.Quantity >= requiredAmount)
+            {
                 return true;
             }
         }
-
         return false;
     }
 
-    private void UpdateUI()
+    public void SwapItems(int indexA, int indexB)
     {
-        for (int i = 0; i < uiSlots.Length; i++)
-        {
-            if (i >= slotsData.Count) break;
+        if (indexA == indexB) return;
+        if (indexA < 0 || indexA >= slotsList.Count || indexB < 0 || indexB >= slotsList.Count) return;
 
-            Image icon = uiSlots[i].transform.GetChild(0).GetComponent<Image>();
-            Text amountText = uiSlots[i].transform.GetChild(1).GetComponent<Text>();
+        InventorySlot temp = slotsList[indexA];
+        slotsList[indexA] = slotsList[indexB];
+        slotsList[indexB] = temp;
 
-            SetSlotVisualAlpha(i, 1f);
-
-            if (slotsData[i].itemData != null)
-            {
-                icon.sprite = slotsData[i].itemData.Icon;
-                icon.enabled = true;
-                if (amountText) amountText.text = slotsData[i].stackSize > 1 ? slotsData[i].stackSize.ToString() : "";
-            }
-            else
-            {
-                icon.enabled = false;
-                if (amountText) amountText.text = "";
-            }
-        }
-    }
-
-    private int GetSlotIndex(GameObject obj)
-    {
-        for (int i = 0; i < uiSlots.Length; i++)
-        {
-            if (obj == uiSlots[i] || obj.transform.IsChildOf(uiSlots[i].transform))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private void SetSlotVisualAlpha(int index, float alpha)
-    {
-        Image icon = uiSlots[index].transform.GetChild(0).GetComponent<Image>();
-        var color = icon.color;
-        color.a = alpha;
-        icon.color = color;
-    }
-
-    private bool IsPointerOverUI(PointerEventData eventData)
-    {
-        return eventData.pointerCurrentRaycast.gameObject != null;
+        OnInventoryChanged?.Invoke();
     }
 
     public void SaveInventory()
     {
         InventorySaveData data = new InventorySaveData();
-
-        for (int i = 0; i < slotsData.Count; i++)
+        foreach (var slot in slotsList)
         {
-            if (slotsData[i].itemData != null)
-            {
-                data.savedSlots.Add(new SlotSaveData
-                {
-                    slotIndex = i,
-                    itemID = slotsData[i].itemData.ID,
-                    amount = slotsData[i].stackSize
-                });
-            }
+            data.savedSlots.Add(new SlotSaveData { itemID = slot.Data.ID, amount = slot.Quantity });
         }
-
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(SaveKey, json);
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
         PlayerPrefs.Save();
     }
 
     public void LoadInventory()
     {
         if (!PlayerPrefs.HasKey(SaveKey)) return;
-
-        string json = PlayerPrefs.GetString(SaveKey);
-        InventorySaveData data = JsonUtility.FromJson<InventorySaveData>(json);
-
-        foreach (var slot in slotsData) slot.Clear();
-
-        foreach (var savedSlot in data.savedSlots)
+        var data = JsonUtility.FromJson<InventorySaveData>(PlayerPrefs.GetString(SaveKey));
+        slotsList.Clear();
+        foreach (var s in data.savedSlots)
         {
-            if (savedSlot.slotIndex < slotsData.Count)
-            {
-                ItemData item = allItemsDatabase.Find(i => i.ID == savedSlot.itemID);
-                if (item != null)
-                {
-                    slotsData[savedSlot.slotIndex].itemData = item;
-                    slotsData[savedSlot.slotIndex].stackSize = savedSlot.amount;
-                }
-            }
+            ItemData item = allItemsList.Find(i => i.ID == s.itemID);
+            if (item != null) slotsList.Add(new InventorySlot(item, s.amount));
         }
-        UpdateUI();
+        OnInventoryChanged?.Invoke();
+    }
+
+    public void ClearInventory()
+    {
+        slotsList.Clear();
+        PlayerPrefs.DeleteKey(SaveKey);
     }
 }
 
-// Classes de Save Data (mantidas aqui para facilitar, mas podes separar se quiseres)
 [Serializable]
 public class InventorySaveData
 {
@@ -304,7 +145,6 @@ public class InventorySaveData
 [Serializable]
 public class SlotSaveData
 {
-    public int slotIndex;
     public string itemID;
     public int amount;
 }
