@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +7,9 @@ public class InventoryManager : MonoBehaviour
     public static InventoryManager instance;
     public List<InventorySlot> slots = new List<InventorySlot>();
     public List<ItemData> allItemsList;
+    public int maxSlots = 10;
+
+    public event Action OnInventoryChanged;
 
     void Awake()
     {
@@ -20,6 +24,7 @@ public class InventoryManager : MonoBehaviour
             {
                 slot.AddQuantity(1);
                 Debug.Log($"Item stacked, Total: {slot.Quantity}");
+                if (OnInventoryChanged != null) OnInventoryChanged.Invoke();
                 return;
             }
         }
@@ -31,6 +36,7 @@ public class InventoryManager : MonoBehaviour
 
     public void RemoveItem(InventorySlot slot)
     {
-            slots.Remove(slot);
+        slots.Remove(slot);
+        if (OnInventoryChanged != null) OnInventoryChanged.Invoke();
     }
 }
