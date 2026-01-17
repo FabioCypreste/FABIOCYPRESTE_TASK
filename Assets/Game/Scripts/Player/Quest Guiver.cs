@@ -4,13 +4,12 @@ public class QuestGiver : MonoBehaviour
 {
     public string questTitle;
     public string questDescription;
-
     private bool playerIsClose = false;
     private bool questGiven = false;
 
     private void Update()
     {
-        if (playerIsClose && Input.GetKeyDown(KeyCode.F) && !questGiven)
+        if (playerIsClose && !questGiven && Input.GetKeyDown(KeyCode.F) )
         {
             GiveQuest();
         }
@@ -19,8 +18,7 @@ public class QuestGiver : MonoBehaviour
     {
         Quest newQuest = new Quest(questTitle, questDescription);
 
-        QuestManager.instance.AddQuest(newQuest);
-
+        QuestManager.QuestManagerInstance.AddQuest(newQuest);
         questGiven = true;
     }
     void OnTriggerEnter(Collider other)

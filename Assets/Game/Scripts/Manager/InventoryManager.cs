@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-    public static InventoryManager Instance { get; private set; }
-    public List<InventorySlot> slots = new List<InventorySlot>();
+    public static InventoryManager InventoryManagerInstance { get; private set; }
+    public List<InventorySlot> slotsList = new List<InventorySlot>();
     public List<ItemData> allItemsList;
     public int maxSlots = 10;
     public event Action OnInventoryChanged;
@@ -15,12 +15,13 @@ public class InventoryManager : MonoBehaviour
     void Awake()
     {
         //Avoid duplicates
-        if (Instance != null && Instance != this)
+        if (InventoryManagerInstance != null && InventoryManagerInstance != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
+
+        InventoryManagerInstance = this;
     }
 
     void Start()
@@ -41,37 +42,37 @@ public class InventoryManager : MonoBehaviour
     {
         if (itemToAdd.IsStackable)
         {
-            foreach(InventorySlot slot in slots)
+            foreach(InventorySlot slot in slotsList)
             {
                 if (slot.Data == itemToAdd && slot.Quantity < itemToAdd.MaxStackSize)
                 {
-                    slot.AddQuantity(1);
+                    slot.AddQuantity(amount);
                     OnInventoryChanged?.Invoke();
                     return;
                 }
             }
         }
-        
 
-        if (slots.Count < maxSlots)
+        //If don't stack, create a new slot
+        if (slotsList.Count < maxSlots)
         {
-            slots.Add(new InventorySlot(itemToAdd, amount));
+            slotsList.Add(new InventorySlot(itemToAdd, amount));
             OnInventoryChanged?.Invoke();
         }
     }
 
     public void RemoveItem(int index)
     {
-        if (index >= 0 && index < slots.Count)
+        if (index >= 0 && index < slotsList.Count)
         {
-            slots.RemoveAt(index);
+            slotsList.RemoveAt(index);
             OnInventoryChanged?.Invoke();
         }
     }
 
     public bool HasItem(ItemData item, int requiredAmount = 1)
     {
-        foreach( var slot in slots)
+        foreach( var slot in slotsList)
         {
             if (slot.Data == item && slot.Quantity >= requiredAmount)
             {
@@ -81,11 +82,12 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    //Save system has been got from a previous project that I've made. 
     public void SaveInventory()
     {
         InventorySaveData data = new InventorySaveData();
 
-        foreach (var slot in slots)
+        foreach (var slot in slotsList)
         {
             if (slot.Data != null)
             {
@@ -102,6 +104,7 @@ public class InventoryManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    //Load system has been got from a previous project that I've made. 
     public void LoadInventory()
     {
         if (!PlayerPrefs.HasKey(SaveKey)) return;
@@ -109,14 +112,14 @@ public class InventoryManager : MonoBehaviour
         string json = PlayerPrefs.GetString(SaveKey);
         InventorySaveData data = JsonUtility.FromJson<InventorySaveData>(json);
 
-        slots.Clear();
+        slotsList.Clear();
 
         foreach (var savedSlot in data.savedSlots)
         {
             ItemData item = allItemsList.Find(i => i.ID == savedSlot.itemID);
             if (item != null)
             {
-                slots.Add(new InventorySlot(item, savedSlot.amount));
+                slotsList.Add(new InventorySlot(item, savedSlot.amount));
             }
         }
         OnInventoryChanged?.Invoke();

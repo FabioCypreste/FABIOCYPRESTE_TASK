@@ -6,14 +6,10 @@ public class ItemPickup : MonoBehaviour
 
     public void Interact()
     {
-        if (InventoryManager.instance != null)
+        if (InventoryManager.InventoryManagerInstance != null)
         {
-            InventoryManager.instance.AddItem(itemData);
+            InventoryManager.InventoryManagerInstance.AddItem(itemData);
             Destroy(gameObject);
-        }
-        else
-        {
-            Debug.Log("Didn't find Inventory Manager");
         }
     }
 }

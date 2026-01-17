@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class QuestManager : MonoBehaviour
 {
-    public static QuestManager Instance { get; private set; }
+    public static QuestManager QuestManagerInstance { get; private set; }
     public List<Quest> quests = new List<Quest>();
     private QuestUI questUI;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (QuestManagerInstance != null && QuestManagerInstance != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
+        QuestManagerInstance = this;
         questUI = FindFirstObjectByType<QuestUI>();
     }
 
@@ -24,7 +24,6 @@ public class QuestManager : MonoBehaviour
         if (!quests.Exists(q => q.title == newQuest.title))
         {
             quests.Add(newQuest);
-            Debug.Log("New mission received: " + newQuest.title);
             questUI?.UpdateQuestList();
         }
     }

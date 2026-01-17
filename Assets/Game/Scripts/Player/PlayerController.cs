@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         playerRigidBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        playerRigidBody.freezeRotation = true;
+        playerRigidBody.freezeRotation = true; //Prevent him from falling with his face on the floor
         playerRigidBody.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
@@ -57,46 +57,41 @@ public class PlayerController : MonoBehaviour
         if (item != null)
         {
             currentItemNearby = null;
-            Debug.Log("Exited from item area");
         }
 
     }
     private void HandleInput()
     {
-        float flatCamera = 0;
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
+        float flatCamera = 0;
+
         camForward.y = flatCamera;
         camRight.y = flatCamera;
-
         camForward.Normalize();
         camRight.Normalize();
 
-        inputVector = (camForward * verticalInput + camRight * horizontalInput).normalized;
+        inputVector = ((camForward * verticalInput) + (camRight * horizontalInput)).normalized; //Prevent him to be faster in diagonal
         hasInput = inputVector.magnitude > 0.1f;
     }
 
     private void ApplyMovement()
     {
-        if (hasInput)
+        if (!hasInput)
         {
-            Vector3 targetVelocity = inputVector * movementSpeed;
-            playerRigidBody.linearVelocity = new Vector3(targetVelocity.x, playerRigidBody.linearVelocity.y, targetVelocity.z);
-        }
-        else
-        {
-            // Freio imediato (No slip)
+            // Break his movement
             playerRigidBody.linearVelocity = new Vector3(0f, playerRigidBody.linearVelocity.y, 0f);
         }
+        Vector3 targetVelocity = inputVector * movementSpeed;
+        playerRigidBody.linearVelocity = new Vector3(targetVelocity.x, playerRigidBody.linearVelocity.y, targetVelocity.z);
     }
 
     private void ApplyRotation()
     {
         if (hasInput)
         {
-            // Smooth rotation based on postman direction
             Quaternion targetRotation = Quaternion.LookRotation(inputVector);
             Quaternion nextRotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime);
 
