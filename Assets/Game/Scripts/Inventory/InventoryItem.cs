@@ -8,6 +8,6 @@ public class InventoryItem : MonoBehaviour
 
     void Update()
     {
-        iconImage.sprite = itemData.icon;
+        iconImage.sprite = itemData.Icon;
     }
 }

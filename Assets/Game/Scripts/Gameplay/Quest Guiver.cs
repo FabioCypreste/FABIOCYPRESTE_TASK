@@ -3,15 +3,16 @@ using UnityEngine;
 public class QuestGiver : MonoBehaviour
 {
     public string questTitle;
-    public string questDescription;
+    [TextArea] public string questDescription;
     public ItemData requiredItem;
-    private bool isPlayerClose = false;
+
     private bool isQuestActive = false;
-    private string dialogComplete = "Thank you!";
+    private bool isQuestCompleted = false;
+    private string dialogComplete = "Thank You!";
 
     public void Interact()
     {
-        if (isQuestActive)
+        if (isQuestCompleted)
         {
             Debug.Log($"NPC: {dialogComplete}");
             return;
@@ -26,33 +27,37 @@ public class QuestGiver : MonoBehaviour
             CheckForCompletion();
         }
     }
+
     void GiveQuest()
     {
         Quest newQuest = new Quest(questTitle, questDescription);
         QuestManager.QuestManagerInstance.AddQuest(newQuest);
         isQuestActive = true;
-        Debug.Log("NPC: Please, find the item for me");
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerClose = true;
-            Debug.Log("Press F to accept the mission");
-        }
+        Debug.Log($"NPC: Please, find {requiredItem.ItemName} for me.");
     }
 
     private void CheckForCompletion()
     {
         if (InventoryManager.InventoryManagerInstance.HasItem(requiredItem))
         {
+            InventoryManager.InventoryManagerInstance.RemoveItem(requiredItem, 1);
+
             QuestManager.QuestManagerInstance.CompleteQuest(questTitle);
-            isQuestActive = true;
+
+            isQuestCompleted = true;
             Debug.Log($"NPC: {dialogComplete}");
         }
         else
         {
-            Debug.Log($"NPC: Have you found it yet?");
+            Debug.Log($"NPC: You didn't find {requiredItem.ItemName}...");
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Press F To interact");
         }
     }
 }
