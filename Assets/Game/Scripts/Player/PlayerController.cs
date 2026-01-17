@@ -31,6 +31,15 @@ public class PlayerController : MonoBehaviour
         ApplyRotation();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+       ItemPickup item = other.GetComponent<ItemPickup>();
+        if (item != null)
+        {
+            Debug.Log($"Press F to pickup {item.itemPickup.ItemName}");
+        }
+    }
+
     private void HandleInput()
     {
         float horizontalInput = Input.GetAxisRaw("Horizontal");
