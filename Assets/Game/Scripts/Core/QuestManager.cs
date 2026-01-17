@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -46,7 +45,7 @@ public class QuestManager : MonoBehaviour
     }
 }
 
-[Serializable]
+[SerializeField]
 public class Quest
 {
     public string title;
