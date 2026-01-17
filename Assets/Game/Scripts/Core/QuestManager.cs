@@ -1,17 +1,22 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
 public class QuestManager : MonoBehaviour
 {
-    public static QuestManager instance;
-    private List<Quest> quests = new List<Quest>();
-
+    public static QuestManager Instance { get; private set; }
+    public List<Quest> quests = new List<Quest>();
     private QuestUI questUI;
 
     private void Awake()
     {
-        instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
         questUI = FindFirstObjectByType<QuestUI>();
     }
 
@@ -21,8 +26,7 @@ public class QuestManager : MonoBehaviour
         {
             quests.Add(newQuest);
             Debug.Log("New mission received: " + newQuest.title);
-
-            if (questUI != null) questUI.UpdateQuestList();
+            questUI?.UpdateQuestList();
         }
     }
 
@@ -32,12 +36,33 @@ public class QuestManager : MonoBehaviour
         if (quest != null && !quest.isCompleted)
         {
             quest.CompleteQuest();
-            if (questUI != null) questUI.UpdateQuestList();
+            questUI?.UpdateQuestList();
         }
     }
 
     public List<Quest> GetActiveQuests()
     {
         return quests.FindAll(quests => !quests.isCompleted);
+    }
+}
+
+[Serializable]
+public class Quest
+{
+    public string title;
+    public string description;
+    public bool isCompleted;
+
+    public Quest(string title, string description)
+    {
+        this.title = title;
+        this.description = description;
+        this.isCompleted = false;
+    }
+
+    public void CompleteQuest()
+    {
+        isCompleted = true;
+        Debug.Log($"Quest Completed: {title}");
     }
 }
