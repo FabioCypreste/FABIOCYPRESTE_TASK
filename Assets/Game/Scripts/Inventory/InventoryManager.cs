@@ -5,6 +5,7 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager instance;
     public List<InventorySlot> slots = new List<InventorySlot>();
+    public List<ItemData> allItemsList;
 
     void Awake()
     {
