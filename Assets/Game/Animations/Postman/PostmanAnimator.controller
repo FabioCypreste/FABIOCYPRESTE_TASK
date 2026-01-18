@@ -42,7 +42,7 @@ AnimatorController:
   m_AnimatorParameters:
   - m_Name: Speedf
     m_Type: 1
-    m_DefaultFloat: 25
+    m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
@@ -103,7 +103,7 @@ AnimatorState:
   m_TimeParameterActive: 0
   m_Motion: {fileID: -2136068227501423325}
   m_Tag: 
-  m_SpeedParameter: 
+  m_SpeedParameter: Speedf
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
