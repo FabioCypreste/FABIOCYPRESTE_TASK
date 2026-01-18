@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d38dfab18e9cf70419bb5e545186c561, type: 3}
   m_Name: Item_Apple
   m_EditorClassIdentifier: Assembly-CSharp::Item
+  id: 
+  itemName: 
+  itemDescription: 
+  maxStackSize: 99
+  icon: {fileID: 21300000, guid: b4e4562a422a41545a7fafe9bd88911a, type: 3}
+  isStackable: 0

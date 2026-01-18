@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework.Interfaces;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
@@ -8,41 +7,58 @@ public class InventoryManager : MonoBehaviour
     public static InventoryManager InventoryManagerInstance { get; private set; }
     public List<InventorySlot> slotsList = new List<InventorySlot>();
     public List<ItemData> allItemsList;
-    public int maxSlots = 10;
+    public int maxSlots = 3;
+    public int currentScore = 0;
     public event Action OnInventoryChanged;
+    public event Action<int> OnScoreChanged;
     private const string SaveKey = "InventorySaveData";
+    private const string ScoreKey = "PlayerScore";
 
     void Awake()
     {
-        //Avoid duplicates
         if (InventoryManagerInstance != null && InventoryManagerInstance != this)
         {
             Destroy(gameObject);
             return;
         }
-
         InventoryManagerInstance = this;
+        DontDestroyOnLoad(gameObject);
+        InitializeInventory();
     }
 
     void Start()
     {
         LoadInventory();
+        currentScore = PlayerPrefs.GetInt(ScoreKey, 0);
+        OnScoreChanged?.Invoke(currentScore);
     }
 
-    private void OnDisable()
+    private void OnDisable() => SaveInventory();
+
+    void OnApplicationQuit() => SaveInventory();
+
+    private void InitializeInventory()
     {
-        SaveInventory();
+        if (slotsList.Count == 0)
+        {
+            for (int i = 0; i < maxSlots; i++) slotsList.Add(new InventorySlot(null, 0));
+        }
     }
 
-    void OnApplicationQuit()
-    {
-        SaveInventory();
-    }
     public void AddItem(ItemData itemToAdd, int amount = 1)
     {
+        if (itemToAdd.ID == "boots")
+        {
+            var player = FindFirstObjectByType<PlayerController>();
+            if (player != null) player.ApplySpeedBoost(2f);
+            return;
+        }
+
+        AddScore(10);
+
         if (itemToAdd.IsStackable)
         {
-            foreach(InventorySlot slot in slotsList)
+            foreach (var slot in slotsList)
             {
                 if (slot.Data == itemToAdd && slot.Quantity < itemToAdd.MaxStackSize)
                 {
@@ -53,89 +69,95 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        //If don't stack, create a new slot
-        if (slotsList.Count < maxSlots)
+        for (int i = 0; i < slotsList.Count; i++)
         {
-            slotsList.Add(new InventorySlot(itemToAdd, amount));
-            OnInventoryChanged?.Invoke();
-        }
-    }
-
-    public void ClearInventory()
-    {
-        slotsList.Clear();
-        PlayerPrefs.DeleteKey(SaveKey);
-        PlayerPrefs.Save();
-        OnInventoryChanged?.Invoke();
-    }
-    public void RemoveItem(ItemData itemToRemove, int amount)
-    {
-        for (int i = slotsList.Count - 1; i >= 0; i--)
-        {
-            if (slotsList[i].Data == itemToRemove)
+            if (slotsList[i].Data == null)
             {
-                slotsList[i].Quantity -= amount;
-                if (slotsList[i].Quantity <= 0)
-                {
-                    slotsList.RemoveAt(i);
-                }
+                slotsList[i] = new InventorySlot(itemToAdd, amount);
                 OnInventoryChanged?.Invoke();
                 return;
             }
         }
     }
 
+    public void AddScore(int points)
+    {
+        currentScore += points;
+        PlayerPrefs.SetInt(ScoreKey, currentScore);
+        PlayerPrefs.Save();
+        OnScoreChanged?.Invoke(currentScore);
+    }
+
+    public void SwapItems(int indexA, int indexB)
+    {
+        if (indexA >= 0 && indexA < slotsList.Count && indexB >= 0 && indexB < slotsList.Count)
+        {
+            InventorySlot temp = slotsList[indexA];
+            slotsList[indexA] = slotsList[indexB];
+            slotsList[indexB] = temp;
+            OnInventoryChanged?.Invoke();
+            SaveInventory();
+        }
+    }
+
+    public void ClearInventory()
+    {
+        for (int i = 0; i < slotsList.Count; i++) slotsList[i] = new InventorySlot(null, 0);
+        currentScore = 0;
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        OnInventoryChanged?.Invoke();
+        OnScoreChanged?.Invoke(0);
+    }
+
     public bool HasItem(ItemData item, int requiredAmount = 1)
     {
-        foreach( var slot in slotsList)
+        foreach (var slot in slotsList)
         {
-            if (slot.Data == item && slot.Quantity >= requiredAmount)
-            {
-                return true;
-            }
+            if (slot.Data == item && slot.Quantity >= requiredAmount) return true;
         }
         return false;
     }
 
-    //Save system has been got from a previous project that I've made. 
+    public void RemoveItem(ItemData itemToRemove, int amount)
+    {
+        for (int i = 0; i < slotsList.Count; i++)
+        {
+            if (slotsList[i].Data == itemToRemove)
+            {
+                slotsList[i].Quantity -= amount;
+                if (slotsList[i].Quantity <= 0) slotsList[i] = new InventorySlot(null, 0);
+                OnInventoryChanged?.Invoke();
+                return;
+            }
+        }
+    }
+
     public void SaveInventory()
     {
         InventorySaveData data = new InventorySaveData();
-
-        foreach (var slot in slotsList)
+        for (int i = 0; i < slotsList.Count; i++)
         {
-            if (slot.Data != null)
+            if (slotsList[i].Data != null)
             {
-                data.savedSlots.Add(new SlotSaveData
-                {
-                    itemID = slot.Data.ID,
-                    amount = slot.Quantity
-                });
+                data.savedSlots.Add(new SlotSaveData { itemID = slotsList[i].Data.ID, amount = slotsList[i].Quantity, slotIndex = i });
             }
         }
-
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(SaveKey, json);
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
         PlayerPrefs.Save();
     }
 
-    //Load system has been got from a previous project that I've made. 
     public void LoadInventory()
     {
         if (!PlayerPrefs.HasKey(SaveKey)) return;
-
         string json = PlayerPrefs.GetString(SaveKey);
         InventorySaveData data = JsonUtility.FromJson<InventorySaveData>(json);
-
-        slotsList.Clear();
-
-        foreach (var savedSlot in data.savedSlots)
+        InitializeInventory();
+        foreach (var saved in data.savedSlots)
         {
-            ItemData item = allItemsList.Find(i => i.ID == savedSlot.itemID);
-            if (item != null)
-            {
-                slotsList.Add(new InventorySlot(item, savedSlot.amount));
-            }
+            ItemData item = allItemsList.Find(it => it.ID == saved.itemID);
+            if (item != null && saved.slotIndex < maxSlots)
+                slotsList[saved.slotIndex] = new InventorySlot(item, saved.amount);
         }
         OnInventoryChanged?.Invoke();
     }
@@ -152,4 +174,5 @@ public class SlotSaveData
 {
     public string itemID;
     public int amount;
+    public int slotIndex;
 }

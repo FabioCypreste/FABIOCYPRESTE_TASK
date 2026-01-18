@@ -21,19 +21,24 @@ public class QuestGiver : MonoBehaviour
         if (!isQuestActive)
         {
             GiveQuest();
-        }
-        else
-        {
-            CheckForCompletion();
-        }
-    }
 
-    void GiveQuest()
-    {
-        Quest newQuest = new Quest(questTitle, questDescription);
-        QuestManager.QuestManagerInstance.AddQuest(newQuest);
-        isQuestActive = true;
-        Debug.Log($"NPC: Please, find {requiredItem.ItemName} for me.");
+            CheckForCompletion();
+            return;
+        }
+        CheckForCompletion();
+
+        void GiveQuest()
+        {
+            if (QuestManager.QuestManagerInstance == null)
+            {
+                Debug.LogError("QuestManagerInstance is null");
+                return;
+            }
+            Quest newQuest = new Quest(questTitle, questDescription);
+            QuestManager.QuestManagerInstance.AddQuest(newQuest);
+            isQuestActive = true;
+            Debug.Log($"NPC: Please, find {requiredItem.ItemName} for me.");
+        }
     }
 
     private void CheckForCompletion()
@@ -41,8 +46,10 @@ public class QuestGiver : MonoBehaviour
         if (InventoryManager.InventoryManagerInstance.HasItem(requiredItem))
         {
             InventoryManager.InventoryManagerInstance.RemoveItem(requiredItem, 1);
-
-            QuestManager.QuestManagerInstance.CompleteQuest(questTitle);
+            if (QuestManager.QuestManagerInstance != null)
+            {
+                QuestManager.QuestManagerInstance.CompleteQuest(questTitle);
+            }
 
             isQuestCompleted = true;
             Debug.Log($"NPC: {dialogComplete}");

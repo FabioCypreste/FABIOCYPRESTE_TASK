@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 
 public class QuestManager : MonoBehaviour
@@ -16,6 +16,8 @@ public class QuestManager : MonoBehaviour
             return;
         }
         QuestManagerInstance = this;
+        DontDestroyOnLoad(gameObject);
+
         questUI = FindFirstObjectByType<QuestUI>();
     }
 
@@ -24,7 +26,7 @@ public class QuestManager : MonoBehaviour
         if (!quests.Exists(q => q.title == newQuest.title))
         {
             quests.Add(newQuest);
-            questUI?.UpdateQuestList();
+            if (questUI != null) questUI.UpdateQuestList();
         }
     }
 
@@ -34,17 +36,17 @@ public class QuestManager : MonoBehaviour
         if (quest != null && !quest.isCompleted)
         {
             quest.CompleteQuest();
-            questUI?.UpdateQuestList();
+            if (questUI != null) questUI.UpdateQuestList();
         }
     }
 
     public List<Quest> GetActiveQuests()
     {
-        return quests.FindAll(quests => !quests.isCompleted);
+        return quests.FindAll(q => !q.isCompleted);
     }
 }
 
-[SerializeField]
+[Serializable]
 public class Quest
 {
     public string title;

@@ -33,6 +33,10 @@ public class PlayerController : MonoBehaviour
         ApplyRotation();
     }
 
+    public void ApplySpeedBoost(float boost)
+    {
+        movementSpeed += boost;
+    }
     private void HandlerInteraction()
     {
         if (Input.GetKeyDown(KeyCode.F)) {
@@ -67,10 +71,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        ItemPickup item = other.GetComponent<ItemPickup>();
-        if (item != null)
+        if (other.GetComponent<ItemPickup>() == currentItemNearby)
         {
             currentItemNearby = null;
+        }
+
+        if (other.GetComponent<QuestGiver>() == currentNPCNearby)
+        {
+            currentNPCNearby = null;
         }
 
     }
