@@ -21,23 +21,28 @@ public class NotificationUI : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        visualPanel.SetActive(false);
+        if (visualPanel != null) visualPanel.SetActive(false);
     }
 
     public void ShowMessage(string message)
     {
-        if (!gameObject.activeInHierarchy)
+        StopAllCoroutines();
+
+        if (visualPanel != null && notificationText != null)
         {
+            notificationText.text = message;
+
             visualPanel.SetActive(true);
+            StartCoroutine(HideAfterDelay());
         }
-        if (currentCoroutine != null) StopCoroutine(currentCoroutine);
-        currentCoroutine = StartCoroutine(DisplayRoutine(message));
     }
 
-    private IEnumerator DisplayRoutine(string message)
+    private IEnumerator HideAfterDelay()
     {
-        notificationText.text = message;
         yield return new WaitForSeconds(displayTime);
-        visualPanel.SetActive(false);
+        if (visualPanel != null)
+        {
+            visualPanel.SetActive(false);
+        }
     }
 }

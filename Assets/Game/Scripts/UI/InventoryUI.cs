@@ -16,7 +16,14 @@ public class InventoryUI : MonoBehaviour
         }
         Instance = this;
     }
-
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
     void Start()
     {
         //Subscribe to inventory changes to refresh the interface

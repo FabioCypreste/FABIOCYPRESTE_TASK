@@ -1,10 +1,9 @@
-using UnityEngine;
+using System;
 
 public class InventorySlot
 {
     public ItemData Data;
     public int Quantity;
-    public GameObject heldItem;
 
     public InventorySlot(ItemData source, int amount)
     {

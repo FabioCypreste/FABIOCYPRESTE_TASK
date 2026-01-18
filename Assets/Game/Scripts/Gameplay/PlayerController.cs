@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
             if (currentItemNearby != null)
             {
                 NotificationUI.Instance.ShowMessage($"Getting {currentItemNearby.itemData.ItemName}");
-                InventoryManager.InventoryManagerInstance.AddItem(currentItemNearby.itemData, 1);
+                currentItemNearby.Interact();
                 currentItemNearby = null;
                 return;
             }
@@ -53,9 +53,9 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Touched");
         if (other.CompareTag("Item"))
         {
+            currentItemNearby = other.GetComponent<ItemPickup>();
             if (NotificationUI.Instance != null)
             {
                 NotificationUI.Instance.ShowMessage("Press F to collect");
