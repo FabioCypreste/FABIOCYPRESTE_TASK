@@ -16,7 +16,9 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         playerRigidBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        playerRigidBody.freezeRotation = true; //Prevent him from falling with his face on the floor
+
+        // Constrain rotation to keep the player upright
+        playerRigidBody.freezeRotation = true;
         playerRigidBody.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
@@ -32,17 +34,12 @@ public class PlayerController : MonoBehaviour
         ApplyMovement();
         ApplyRotation();
     }
-
-    public void ApplySpeedBoost(float boost)
-    {
-        movementSpeed += boost;
-    }
     private void HandlerInteraction()
     {
         if (Input.GetKeyDown(KeyCode.F)) {
             if (currentItemNearby != null)
             {
-                Debug.Log($"Getting {currentItemNearby.itemData.ItemName}");
+                NotificationUI.Instance.ShowMessage($"Getting {currentItemNearby.itemData.ItemName}");
                 currentItemNearby.Interact();
                 currentItemNearby = null;
                 return;
@@ -59,13 +56,13 @@ public class PlayerController : MonoBehaviour
         if (other.TryGetComponent(out ItemPickup item))
         {
             currentItemNearby = item;
-            Debug.Log("Press F to Pickup Item");
+            NotificationUI.Instance.ShowMessage("Press F to Pickup Item");
         }
 
         else if (other.TryGetComponent(out QuestGiver npc))
         {
             currentNPCNearby = npc;
-            Debug.Log("Press F to Talk to NPC");
+            NotificationUI.Instance.ShowMessage("Press F to Talk to NPC");
         }
     }
 
@@ -86,15 +83,17 @@ public class PlayerController : MonoBehaviour
     {
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
+
         Vector3 camForward = cameraTransform.forward;
         Vector3 camRight = cameraTransform.right;
-        float flatCamera = 0;
 
+        float flatCamera = 0;
         camForward.y = flatCamera;
         camRight.y = flatCamera;
         camForward.Normalize();
         camRight.Normalize();
 
+        // Calculate move direction based on camera orientation
         inputVector = ((camForward * verticalInput) + (camRight * horizontalInput)).normalized; //Prevent him to be faster in diagonal
         hasInput = inputVector.magnitude > 0.1f;
     }
@@ -103,7 +102,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!hasInput)
         {
-            // Break his movement
+            // Reset horizontal velocity when no input is detected
             playerRigidBody.linearVelocity = new Vector3(0f, playerRigidBody.linearVelocity.y, 0f);
         }
         Vector3 targetVelocity = inputVector * movementSpeed;
@@ -125,7 +124,7 @@ public class PlayerController : MonoBehaviour
     {
         if (animator == null) return;
 
-        // Send magnitude to Blend Tree (0 = Idle, 1 = Walk)
+        // Send magnitude to Blend Tree (0 = Idle, 1 = Running)
         animator.SetFloat("Speedf", inputVector.magnitude, 0.1f, Time.deltaTime);
     }
 }

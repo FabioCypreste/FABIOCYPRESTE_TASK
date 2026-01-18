@@ -33,6 +33,7 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
     }
 
+    //Drag, drop and swap methods
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!iconImage.enabled) return;
@@ -45,7 +46,7 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void OnDrag(PointerEventData eventData)
     {
         if (!iconImage.enabled) return;
-        transform.position = eventData.position;
+        transform.position = eventData.position; //The item follows the mouse position
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -53,6 +54,7 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
+        //Alocates the item in the slow below
         transform.SetParent(InventoryUI.Instance.GetSlotsParent());
         InventoryUI.Instance.UpdateUI();
     }
@@ -61,6 +63,7 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         InventorySlotUI itemA = eventData.pointerDrag.GetComponent<InventorySlotUI>();
 
+        //If there's an item in the slot below, reorder him
         if (itemA != null && itemA != this)
         {
             InventoryManager.InventoryManagerInstance.SwapItems(itemA.slotIndex, this.slotIndex);

@@ -19,6 +19,7 @@ public class InventoryUI : MonoBehaviour
 
     void Start()
     {
+        //Subscribe to inventory changes to refresh the interface
         InventoryManager.InventoryManagerInstance.OnInventoryChanged += UpdateUI;
         UpdateUI();
     }
@@ -30,6 +31,8 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateUI()
     {
+
+        // Clear existing slot objects before rebuilding
         foreach (Transform child in slotsParent)
         {
             Destroy(child.gameObject);
@@ -37,6 +40,7 @@ public class InventoryUI : MonoBehaviour
 
         var slots = InventoryManager.InventoryManagerInstance.slotsList;
 
+        // Instantiate and configure slot UI elements based on manager data
         for (int i = 0; i < slots.Count; i++)
         {
             GameObject newSlot = Instantiate(slotPrefab, slotsParent);
@@ -46,7 +50,7 @@ public class InventoryUI : MonoBehaviour
             }
         }
     }
-
+    // Returns the container transform for drag-and-drop parenting
     public Transform GetSlotsParent()
     {
         return slotsParent;

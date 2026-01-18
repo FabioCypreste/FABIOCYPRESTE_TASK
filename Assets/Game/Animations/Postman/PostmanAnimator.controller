@@ -6,7 +6,7 @@ BlendTree:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Idle Walking Blend Tree
+  m_Name: Idle to Running Blend Tree
   m_Childs:
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 9ed316043ad60e243af99a8b73e4cacf, type: 3}
@@ -17,10 +17,10 @@ BlendTree:
     m_DirectBlendParameter: Speedf
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 10cc10e8f7ad59b46ada3bd613f31035, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: 70af35f13a54ceb439b99e9dcb6a9d48, type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
-    m_TimeScale: 1
+    m_TimeScale: 1.4
     m_CycleOffset: 0
     m_DirectBlendParameter: Speedf
     m_Mirror: 0

@@ -14,31 +14,27 @@ public class QuestGiver : MonoBehaviour
     {
         if (isQuestCompleted)
         {
-            Debug.Log($"NPC: {dialogComplete}");
+            NotificationUI.Instance.ShowMessage($"NPC: {dialogComplete}");
             return;
         }
 
         if (!isQuestActive)
         {
             GiveQuest();
-
-            CheckForCompletion();
             return;
         }
-        CheckForCompletion();
 
-        void GiveQuest()
-        {
-            if (QuestManager.QuestManagerInstance == null)
-            {
-                Debug.LogError("QuestManagerInstance is null");
-                return;
-            }
-            Quest newQuest = new Quest(questTitle, questDescription);
-            QuestManager.QuestManagerInstance.AddQuest(newQuest);
-            isQuestActive = true;
-            Debug.Log($"NPC: Please, find {requiredItem.ItemName} for me.");
-        }
+        CheckForCompletion();
+    }
+
+    private void GiveQuest()
+    {
+        if (QuestManager.QuestManagerInstance == null) return;
+
+        Quest newQuest = new Quest(questTitle, questDescription);
+        QuestManager.QuestManagerInstance.AddQuest(newQuest);
+        isQuestActive = true;
+        NotificationUI.Instance.ShowMessage($"NPC: Please, find {requiredItem.ItemName} for me.");
     }
 
     private void CheckForCompletion()
@@ -46,17 +42,14 @@ public class QuestGiver : MonoBehaviour
         if (InventoryManager.InventoryManagerInstance.HasItem(requiredItem))
         {
             InventoryManager.InventoryManagerInstance.RemoveItem(requiredItem, 1);
-            if (QuestManager.QuestManagerInstance != null)
-            {
-                QuestManager.QuestManagerInstance.CompleteQuest(questTitle);
-            }
+            QuestManager.QuestManagerInstance?.CompleteQuest(questTitle);
 
             isQuestCompleted = true;
-            Debug.Log($"NPC: {dialogComplete}");
+            NotificationUI.Instance.ShowMessage($"NPC: {dialogComplete}");
         }
         else
         {
-            Debug.Log($"NPC: You didn't find {requiredItem.ItemName}...");
+            NotificationUI.Instance.ShowMessage($"NPC: You didn't find {requiredItem.ItemName}...");
         }
     }
 
@@ -64,7 +57,7 @@ public class QuestGiver : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Press F To interact");
+            NotificationUI.Instance.ShowMessage("Press F to interact");
         }
     }
 }

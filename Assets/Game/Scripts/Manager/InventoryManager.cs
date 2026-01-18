@@ -8,14 +8,13 @@ public class InventoryManager : MonoBehaviour
     public List<InventorySlot> slotsList = new List<InventorySlot>();
     public List<ItemData> allItemsList;
     public int maxSlots = 3;
-    public int currentScore = 0;
     public event Action OnInventoryChanged;
-    public event Action<int> OnScoreChanged;
     private const string SaveKey = "InventorySaveData";
-    private const string ScoreKey = "PlayerScore";
 
     void Awake()
     {
+
+        //Avoid duplicates
         if (InventoryManagerInstance != null && InventoryManagerInstance != this)
         {
             Destroy(gameObject);
@@ -29,8 +28,6 @@ public class InventoryManager : MonoBehaviour
     void Start()
     {
         LoadInventory();
-        currentScore = PlayerPrefs.GetInt(ScoreKey, 0);
-        OnScoreChanged?.Invoke(currentScore);
     }
 
     private void OnDisable() => SaveInventory();
@@ -46,46 +43,33 @@ public class InventoryManager : MonoBehaviour
     }
 
     public void AddItem(ItemData itemToAdd, int amount = 1)
-    {
-        if (itemToAdd.ID == "boots")
-        {
-            var player = FindFirstObjectByType<PlayerController>();
-            if (player != null) player.ApplySpeedBoost(2f);
-            return;
-        }
-
-        AddScore(10);
-
+    {   
+        //Try to stack in existing slots
         if (itemToAdd.IsStackable)
         {
             foreach (var slot in slotsList)
             {
-                if (slot.Data == itemToAdd && slot.Quantity < itemToAdd.MaxStackSize)
+                if (slot.Data != null && slot.Data.ID == itemToAdd.ID)
                 {
                     slot.AddQuantity(amount);
                     OnInventoryChanged?.Invoke();
+                    SaveInventory();
                     return;
                 }
             }
         }
 
+        //Fill first available empty slot
         for (int i = 0; i < slotsList.Count; i++)
         {
             if (slotsList[i].Data == null)
             {
                 slotsList[i] = new InventorySlot(itemToAdd, amount);
                 OnInventoryChanged?.Invoke();
+                SaveInventory();
                 return;
             }
         }
-    }
-
-    public void AddScore(int points)
-    {
-        currentScore += points;
-        PlayerPrefs.SetInt(ScoreKey, currentScore);
-        PlayerPrefs.Save();
-        OnScoreChanged?.Invoke(currentScore);
     }
 
     public void SwapItems(int indexA, int indexB)
@@ -100,16 +84,15 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    //Callable from "New game"
     public void ClearInventory()
     {
+        //Reset all slots to empty state and wipe persistence
         for (int i = 0; i < slotsList.Count; i++) slotsList[i] = new InventorySlot(null, 0);
-        currentScore = 0;
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
         OnInventoryChanged?.Invoke();
-        OnScoreChanged?.Invoke(0);
     }
-
     public bool HasItem(ItemData item, int requiredAmount = 1)
     {
         foreach (var slot in slotsList)
@@ -147,6 +130,7 @@ public class InventoryManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    //Callable from "Continue"
     public void LoadInventory()
     {
         if (!PlayerPrefs.HasKey(SaveKey)) return;
@@ -163,6 +147,7 @@ public class InventoryManager : MonoBehaviour
     }
 }
 
+//Auxiliar classes
 [Serializable]
 public class InventorySaveData
 {
