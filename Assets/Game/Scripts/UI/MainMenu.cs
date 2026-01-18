@@ -5,7 +5,7 @@ public class MainMenu : MonoBehaviour
 {
 
     //The code below has been created by me in another project!
-    [SerializeField] private string gameSceneName = "Village";
+    [SerializeField] private string gameSceneName = "House";
 
     public void ContinueGame()
     {

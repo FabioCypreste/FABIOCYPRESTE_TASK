@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
             if (currentItemNearby != null)
             {
                 NotificationUI.Instance.ShowMessage($"Getting {currentItemNearby.itemData.ItemName}");
-                currentItemNearby.Interact();
+                InventoryManager.InventoryManagerInstance.AddItem(currentItemNearby.itemData, 1);
                 currentItemNearby = null;
                 return;
             }
@@ -53,27 +53,29 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out ItemPickup item))
+        Debug.Log("Touched");
+        if (other.CompareTag("Item"))
         {
-            currentItemNearby = item;
-            NotificationUI.Instance.ShowMessage("Press F to Pickup Item");
+            if (NotificationUI.Instance != null)
+            {
+                NotificationUI.Instance.ShowMessage("Press F to collect");
+            }
         }
 
-        else if (other.TryGetComponent(out QuestGiver npc))
+        if (other.CompareTag("NPC"))
         {
-            currentNPCNearby = npc;
-            NotificationUI.Instance.ShowMessage("Press F to Talk to NPC");
+            currentNPCNearby = other.GetComponent<QuestGiver>();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<ItemPickup>() == currentItemNearby)
+        if (other.CompareTag("Item"))
         {
             currentItemNearby = null;
         }
 
-        if (other.GetComponent<QuestGiver>() == currentNPCNearby)
+        if (other.CompareTag("NPC"))
         {
             currentNPCNearby = null;
         }

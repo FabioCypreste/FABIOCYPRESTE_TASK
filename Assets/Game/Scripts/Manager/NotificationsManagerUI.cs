@@ -13,13 +13,15 @@ public class NotificationUI : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
         {
             Destroy(gameObject);
-            return;
         }
-        Instance = this;
-        if (visualPanel != null) visualPanel.SetActive(false);
+        visualPanel.SetActive(false);
     }
 
     public void ShowMessage(string message)

@@ -9,16 +9,28 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: -0.39523983
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.23387
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 14.87636
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -26,7 +38,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
       propertyPath: m_LocalRotation.y
@@ -52,8 +64,58 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fruitebascket
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      propertyPath: m_TagString
+      value: Item
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6503771425406967824}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4372774226425863437}
   m_SourcePrefab: {fileID: 100100000, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+--- !u!1 &1638859514336761577 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 23c143042ed9e8e4090e63cabd2602d0, type: 3}
+  m_PrefabInstance: {fileID: 1909262197897489336}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &6503771425406967824
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638859514336761577}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.7465627, y: 0.69945097, z: 0.6932883}
+  m_Center: {x: 0.036013007, y: 0.348046, z: -0.06209016}
+--- !u!114 &4372774226425863437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638859514336761577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab51e331ee99c96438be7e891ce33d10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
+  itemData: {fileID: 11400000, guid: e27abb1587b48cd47a5b326c99b23806, type: 2}
+  pickupSound: {fileID: 8300000, guid: 36c22dd2062ce0e489e256220e82f567, type: 3}
